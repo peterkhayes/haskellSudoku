@@ -4,6 +4,7 @@ import Data.Array
 import Data.Char
 import Debug.Trace
 import System.IO
+import System.Environment
 debug = flip trace
 
 -- TYPES AND CONSTANTS
@@ -103,8 +104,8 @@ getLegalMovesForIdx board idx =
       valIsLegalMove = (`notElem` neighborVals)
   in map (\x -> (idx, x)) . filter valIsLegalMove $ vals
 
-getCorrectMoves :: Board -> [Move]
-getCorrectMoves board =
+getSingletonMoves :: Board -> [Move]
+getSingletonMoves board =
   let free = getFreeSquareIdxs board
       moves = map (getLegalMovesForIdx board) free
       correctMoves = filter ((==1) . length) moves
@@ -118,7 +119,7 @@ solve board
   | isSolved board = board
   | length correctMoves > 0 = solve $ makeMove board (head correctMoves)
   | otherwise = error "Could not solve board"
-  where correctMoves = getCorrectMoves board
+  where correctMoves = getSingletonMoves board
 
 -- SHOW YOUR WORK
 
@@ -138,6 +139,7 @@ printBoard board = do
   putStrLn ""
 
 -- RELEASE THE PROBLEM
+
 parsePuzzle :: String -> Board
 parsePuzzle input =
   let vals = concat $ lines input
@@ -147,7 +149,8 @@ parsePuzzle input =
   in (arrayFromList list) :: Board
 
 main = do
-  contents <- readFile "data.txt"
+  args <- getArgs
+  contents <- readFile $ head args
   let puzzle = parsePuzzle contents
   putStrLn "Input:"
   printBoard puzzle
